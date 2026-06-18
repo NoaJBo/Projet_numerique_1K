@@ -162,8 +162,8 @@ def Test_derivee_premiere():
     ax1.set_xlabel("x"); ax1.set_ylabel("df/dx")
     ax1.legend(); ax1.grid(True, alpha=0.4)
     
-    ax2.semilogy(x[idx], err_progressive[idx], 'b-', label="Erreur progressive")
-    ax2.semilogy(x[idx], err_centree[idx], 'r-', label="Erreur centrée")
+    ax2.semilogy(x[idx], err_progressive, 'b-', label="Erreur progressive")
+    ax2.semilogy(x[idx], err_centree, 'r-', label="Erreur centrée")
     ax2.set_title("Erreur relative |numérique - analytique|/|analytique|", fontsize=10)
     ax2.set_xlabel("x"); ax2.set_ylabel("Erreur relative (échelle log)")
     ax2.legend(); ax2.grid(True, alpha=0.4)
