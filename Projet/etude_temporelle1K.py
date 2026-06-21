@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import time
 
-# Configuration pour ton affichage
 matplotlib.use("Qt5Agg")
 
 from algo_derivation import derivee_seconde_num
@@ -13,8 +11,8 @@ from simulation_schrodinger import generer_barriere_potentiel, generer_paquet_on
 
 def simuler_silencieux_2D(x: np.ndarray, dx: float, dt: float, nt: int, V: np.ndarray, psi_initial: np.ndarray) -> np.ndarray:
     """
-    Exécute l'algorithme de Verlet et sauvegarde l'historique COMPLET de la densité de probabilité
-    sous forme d'un tableau 2D de taille (nx, nt) pour l'analyse temporelle.
+    Propage psi_initial pendant nt pas et renvoie la matrice densité (nx, nt).
+    Implémentation en stockage 2D : Re[:, n], Im[:, n].
     """
     nx = len(x)
     Re = np.zeros((nx, nt))
@@ -34,7 +32,7 @@ def simuler_silencieux_2D(x: np.ndarray, dx: float, dt: float, nt: int, V: np.nd
 
 def calculer_temps_transit(x: np.ndarray, dt: float, densite_2D: np.ndarray, debut_b: float, largeur_a: float):
     """
-    Renvoie les instants absolus d'entrée et de sortie.
+    Renvoie (t_entree, t_sortie) mesurés via argmax de la densité aux indices de bord.
     """
     fin_b = debut_b + largeur_a
     idx_debut = np.argmin(np.abs(x - debut_b))
@@ -46,7 +44,6 @@ def calculer_temps_transit(x: np.ndarray, dt: float, densite_2D: np.ndarray, deb
     return t_entree, t_sortie
 
 if __name__ == "__main__":
-    # --- Paramètres de base ---
     nx = 1000
     x, dx = np.linspace(-50.0, 50.0, nx, retstep=True)
     nt = 20000
@@ -57,15 +54,10 @@ if __name__ == "__main__":
     xc = -30.0
     debut_barriere = 5.0
 
-    print("Démarrage de l'étude temporelle. Cela peut prendre 1 à 2 minutes...")
+    print("Démarrage de l'étude temporelle...")
     debut_chrono = time.time()
 
-    # ---------------------------------------------------------
-    # ÉTUDE A : INFLUENCE DE LA LARGEUR 'a' (V0 fixe)
-    # ---------------------------------------------------------
-    print("\n1. Calcul de l'influence de la largeur 'a' sur tau_0 et tau_t...")
     V0_fixe = 2.5
-    # On teste 10 largeurs différentes pour ne pas surcharger le processeur
     valeurs_a = np.linspace(0.5, 4.0, 10)
     liste_tau_0 = []
     liste_tau_t_a = []
@@ -73,25 +65,17 @@ if __name__ == "__main__":
     for a_test in valeurs_a:
         psi_init = generer_paquet_onde(x, xc, k0_fixe, largeur_paquet)
 
-        # Particule libre : V0 = 0
         V_libre = np.zeros_like(x)
         H_libre = simuler_silencieux_2D(x, dx, dt, nt, V_libre, psi_init)
-        # On extrait t_in_libre et t_out_libre
         t_in_libre, t_out_libre = calculer_temps_transit(x, dt, H_libre, debut_barriere, a_test)
         liste_tau_0.append(t_out_libre - t_in_libre)
 
-        # Particule avec barrière : V0 = V0_fixe
         V_barriere = generer_barriere_potentiel(x, debut_barriere, a_test, V0_fixe)
         H_barriere = simuler_silencieux_2D(x, dx, dt, nt, V_barriere, psi_init)
-        # On ignore l'entrée biaisée (_) et on récupère la sortie propre
         _, t_out_barriere = calculer_temps_transit(x, dt, H_barriere, debut_barriere, a_test)
 
-        # On calcule le temps de franchissement corrigé
         liste_tau_t_a.append(t_out_barriere - t_in_libre)
-    # ---------------------------------------------------------
-    # ÉTUDE B : INFLUENCE DE LA HAUTEUR 'V0' (a fixe)
-    # ---------------------------------------------------------
-    print("\n2. Calcul de l'influence de la hauteur 'V0' sur tau_t...")
+
     a_fixe = 1.0
     valeurs_V0 = np.linspace(2.5, 6, 10)
     liste_tau_t_V0 = []
@@ -111,27 +95,16 @@ if __name__ == "__main__":
     temps_total = time.time() - debut_chrono
     print(f"\nCalculs terminés en {temps_total:.1f} secondes. Affichage des graphes.")
 
-    # ---------------------------------------------------------
-    # AFFICHAGE
-    # ---------------------------------------------------------
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # Graphique de l'étude de 'a'
-    ax1.plot(valeurs_a, liste_tau_0, marker='o', label=r"Particule libre $\tau_{0,num}$", color="green")
-    ax1.plot(valeurs_a, liste_tau_t_a, marker='s', label=r"Effet tunnel $\tau_{t,num}$", color="blue")
+    ax1.plot(valeurs_a, liste_tau_0, marker='o', label="Particule libre τ₀,num", color="green")
+    ax1.plot(valeurs_a, liste_tau_t_a, marker='s', label="Effet tunnel τt,num", color="blue")
     ax1.set_title("Influence de la largeur de la barrière (a)")
-    ax1.set_xlabel("Largeur de la barrière (a)")
-    ax1.set_ylabel("Temps de parcours (s)")
-    ax1.legend()
-    ax1.grid(True)
+    ax1.set_xlabel("Largeur de la barrière (a)"); ax1.set_ylabel("Temps de parcours (s)")
+    ax1.legend(); ax1.grid(True)
 
-    # Graphique de l'étude de 'V0'
-    ax2.plot(valeurs_V0, liste_tau_t_V0, marker='d', color="red", label=r"$\tau_{t,num}$")
+    ax2.plot(valeurs_V0, liste_tau_t_V0, marker='d', color="red", label="τt,num")
     ax2.set_title("Influence de la hauteur de la barrière (V0)")
-    ax2.set_xlabel("Hauteur de la barrière (V0)")
-    ax2.set_ylabel("Temps de franchissement (s)")
-    ax2.legend()
-    ax2.grid(True)
+    ax2.set_xlabel("Hauteur de la barrière (V0)"); ax2.set_ylabel("Temps de franchissement (s)")
+    ax2.legend(); ax2.grid(True)
 
-    plt.tight_layout()
-    plt.show()
+    plt.tight_layout(); plt.show()
