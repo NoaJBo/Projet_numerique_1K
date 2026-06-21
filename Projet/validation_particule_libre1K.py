@@ -2,8 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from algo_derivation import derivee_seconde_num
-from paquet_onde_gauss_1d import GaussWP, hbar, m  # unités réduites hbar = m = 1
+from algo_derivation1K import derivee_seconde_num
+from paquet_onde_gauss_1d1K import GaussWP, hbar, m  # unités réduites hbar = m = 1
 
 def generer_paquet_onde(x: np.ndarray, xc: float, k0: float, a: float) -> np.ndarray:
     """Génère le paquet d'ondes gaussien initial (identique à simulation_schrodinger)."""
