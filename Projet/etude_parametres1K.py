@@ -5,8 +5,8 @@ import time
 
 matplotlib.use("Qt5Agg")
 
-from algo_derivation import derivee_seconde_num
-from simulation_schrodinger import generer_barriere_potentiel, generer_paquet_onde, calculer_transmission
+from algo_derivation1K import derivee_seconde_num
+from simulation_schrodinger1K import generer_barriere_potentiel, generer_paquet_onde, calculer_transmission
 
 def simuler_silencieux(Re: np.ndarray, Im: np.ndarray, V: np.ndarray, dx: float, dt: float, nt: int) -> np.ndarray:
     """
