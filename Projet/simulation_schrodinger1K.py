@@ -4,7 +4,7 @@ import matplotlib
 
 matplotlib.use("Qt5Agg")
 
-from algo_derivation import derivee_seconde_num
+from algo_derivation1K import derivee_seconde_num
 
 def generer_barriere_potentiel(x: np.ndarray, debut: float, largeur: float, V0: float) -> np.ndarray:
     """
