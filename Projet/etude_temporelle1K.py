@@ -6,8 +6,8 @@ import time
 
 matplotlib.use("Qt5Agg")
 
-from algo_derivation import derivee_seconde_num
-from simulation_schrodinger import generer_barriere_potentiel, generer_paquet_onde
+from algo_derivation1K import derivee_seconde_num
+from simulation_schrodinger1K import generer_barriere_potentiel, generer_paquet_onde
 
 def simuler_silencieux_2D(x: np.ndarray, dx: float, dt: float, nt: int, V: np.ndarray, psi_initial: np.ndarray) -> np.ndarray:
     """
